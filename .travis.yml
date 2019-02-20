@@ -1,0 +1,25 @@
+language: node_js
+
+node_js:
+- "8"
+
+before_script:
+  - npm run setup
+  - npm run build
+
+script:
+  - npm run test
+
+after_success:
+  - npm run pack
+  
+before_deploy:
+  - cd dist/hal-tree
+
+deploy:
+  - provider: npm
+    skip_cleanup: true
+    email: "knaydenov@gmail.com"
+    api_key: $NPM_TOKEN
+    on:
+      tags: true
