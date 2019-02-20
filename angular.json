@@ -121,6 +121,46 @@
           }
         }
       }
+    },
+    "hal-tree": {
+      "root": "projects/hal-tree",
+      "sourceRoot": "projects/hal-tree/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/hal-tree/tsconfig.lib.json",
+            "project": "projects/hal-tree/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/hal-tree/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/hal-tree/src/test.ts",
+            "tsConfig": "projects/hal-tree/tsconfig.spec.json",
+            "karmaConfig": "projects/hal-tree/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/hal-tree/tsconfig.lib.json",
+              "projects/hal-tree/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "hal-tree-app"

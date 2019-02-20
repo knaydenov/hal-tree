@@ -1,0 +1,20 @@
+{
+  "name": "hal-tree",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/cdk": "^6.4.0",
+    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/material": "^6.4.0",
+    "rxjs": "^6.4.0"
+  },
+  "devDependencies": {
+    "@angular/cdk": "^6.4.0",
+    "@angular/common": "^6.1.10",
+    "@angular/material": "^6.4.0",
+    "zone.js": "^0.8.29"
+  },
+  "dependencies": {
+    "@knaydenov/hal": "^2.0.0"
+  }
+}
