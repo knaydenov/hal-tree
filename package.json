@@ -8,7 +8,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "setup": "npm install",
-    "pack": "cd dist/hal-tree && npm pack",
+    "pack": "cp .npmignore dist/hal-tree/ && cd dist/hal-tree && npm pack",
     "build": "ng build hal-tree",
     "clean": "rm -rf node_modules/ dist/ projects/hal-tree/node_modules",
     "version": "cd projects/hal-tree && npm version"
