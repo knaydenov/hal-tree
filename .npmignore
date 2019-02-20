@@ -1,5 +1,4 @@
 node_modules/
-lib/
 .travis.yml
 tsconfig.json
 dist/*.spec.*
