@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ContentChildren, QueryList, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ContentChildren, QueryList, ContentChild, ViewChild, AfterViewChecked, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { HalTreeDataSource } from '../hal-tree-data-source';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { HalTreeItem } from '../hal-tree-item';
@@ -42,10 +42,17 @@ export class HalTreeComponent implements OnInit {
   }
 
   isLoading(node: HalTreeItem<any>) {
-    return node.isLoading || node.childrenDataSource.isLoading;
+    return node.isLoading;
+  }
+
+  showLoadMore(dataSource: HalTreeDataSource<any>) {
+    return dataSource && !dataSource.isLoading && !dataSource.autoload && dataSource.hasMore;
+  }
+
+  loadMore(dataSource: HalTreeDataSource<any>) {
+    dataSource.more();
   }
 
   ngOnInit() {
   }
-
 }
