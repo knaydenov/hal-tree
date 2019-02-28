@@ -31,6 +31,8 @@
         <ul [class.tree-invisible]="!treeControl.isExpanded(node)">
           <ng-container matTreeNodeOutlet></ng-container>
         </ul>
+        <button *ngIf="showLoadMore(node.childrenDataSource)" class="load-more" mat-button (click)="loadMore(node.childrenDataSource)">{{ 'hal-tree.loadMore' | translate }}</button>
       </li>
     </mat-nested-tree-node>
   </mat-tree>
+  <button *ngIf="showLoadMore(dataSource)" class="load-more" mat-button (click)="loadMore(dataSource)">{{ 'hal-tree.loadMore' | translate }}</button>

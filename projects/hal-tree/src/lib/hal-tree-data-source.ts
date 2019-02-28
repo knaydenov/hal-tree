@@ -26,17 +26,23 @@ export class HalTreeDataSource<T extends Resource<IResource>> extends DataSource
         this._autoload = config.autoload || false;
 
         if (this.pageableResource) {
+            // Clear list 
+            if (this.pageableResource.page !== 1) {
+                this.pageableResource.items$.next([]);
+                this.pageableResource.navigateFirst();
+            }
+
             this
                 .pageableResource
                 .items$
                 .subscribe(items => {
                     if (this.pageIndex === 0) {
-                        this.items$.next(items.map(item => this._transformItem(item)));
+                        this.items$.next(items.map(item => this.transformItem(item)));
                         if (this.autoload) {
                             this.more();
                         }
                     } else {
-                        this.items$.next([...this.items, ...items.map(item => this._transformItem(item))]);
+                        this.items$.next([...this.items, ...items.map(item => this.transformItem(item))]);
                         if (this.autoload) {
                             this.more();
                         }
@@ -79,12 +85,28 @@ export class HalTreeDataSource<T extends Resource<IResource>> extends DataSource
         return this._autoload;
     }
 
+    get hasMore() {
+        return this.pageableResource ? this.pageableResource.hasNext : false;
+    }
+
     connect(collectionViewer: CollectionViewer): Observable<HalTreeItem<T>[]> {
         return merge(collectionViewer.viewChange, this._items$).pipe(map(() => this.items));
     }
 
     disconnect(collectionViewer: CollectionViewer): void {
 
+    }
+
+    transformItem (item: T) {
+        return this._transformItem(item);
+    }
+
+    appendItem(item: T) {
+        this.items$.next([...this.items, this.transformItem(item)]);
+    }
+
+    removeItem(item: T) {
+        this.items$.next(this.items.filter(_item => _item.item !== item));
     }
 
     more() {

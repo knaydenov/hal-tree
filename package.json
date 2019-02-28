@@ -38,6 +38,7 @@
     "@angular/material": "^6.0.0",
     "@knaydenov/hal": "^2.0.0",
     "@angular/cdk": "^6.0.0",
+    "@ngx-translate/core": "^10.0.0",
     "@types/jasmine": "~2.8.6",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~8.9.4",
