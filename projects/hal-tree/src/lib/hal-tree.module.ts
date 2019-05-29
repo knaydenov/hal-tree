@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HalTreeComponent } from './hal-tree/hal-tree.component';
-import { MatTreeModule, MatIconModule, MatButtonModule, MatCheckboxModule, MatProgressSpinnerModule } from '@angular/material';
+import { MatTreeModule, MatIconModule, MatButtonModule, MatCheckboxModule, MatProgressSpinnerModule, MatListModule, MatChipsModule, MatMenuModule, MatRadioModule, MatTooltipModule, MatFormFieldModule } from '@angular/material';
 import { HalTreeActionDirective } from './hal-tree-action.directive';
 import { HalTreeActionDefDirective } from './hal-tree-action-def.directive';
 import { TranslateModule } from '@ngx-translate/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 const EXPORTED_DECLARATIONS = [
   HalTreeComponent,
@@ -20,7 +21,16 @@ const EXPORTED_DECLARATIONS = [
     MatButtonModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
-    TranslateModule
+    MatListModule,
+    MatChipsModule,
+    MatMenuModule,
+    MatRadioModule,
+    MatTooltipModule,
+    TranslateModule,
+    MatFormFieldModule,
+    FormsModule,
+    ReactiveFormsModule
+    
   ],
   declarations: EXPORTED_DECLARATIONS,
   exports: EXPORTED_DECLARATIONS,

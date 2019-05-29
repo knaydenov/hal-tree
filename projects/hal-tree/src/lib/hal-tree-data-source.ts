@@ -1,7 +1,7 @@
 import { PageableResource, Resource, IResource } from "@knaydenov/hal";
 import { DataSource } from "@angular/cdk/table";
 import { CollectionViewer } from "@angular/cdk/collections";
-import { BehaviorSubject, Subscription } from "rxjs";
+import { BehaviorSubject, Subscription, Subject } from "rxjs";
 
 export class HalTreeDataSource<T extends Resource<IResource>> extends DataSource<T> {
     _items$: BehaviorSubject<T[]> = new BehaviorSubject<T[]>([]);
@@ -92,7 +92,7 @@ export class HalTreeDataSource<T extends Resource<IResource>> extends DataSource
       return this._items$.value;
     }
 
-    addItem(data: any, options?: any) {
+    addItem(data: any, options?: any): Subject<IResource> {
       const addItem$ = this
         .currentPageableResource
         .addItem(data)

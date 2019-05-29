@@ -5,6 +5,7 @@ import { HalTreeActionDefDirective } from '../hal-tree-action-def.directive';
 import { FormControl } from '@angular/forms';
 import { Resource } from '@knaydenov/hal';
 import { debounceTime } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 
 export enum SelectionMode {
   NONE = 0,
@@ -21,7 +22,8 @@ export class HalTreeComponent<T extends Resource<any>> implements OnInit {
   queryControl: FormControl;
   
   @Input() dataSource: HalTreeDataSource<T> = null; 
-  @Input() selection: SelectionModel<T> = null; 
+  @Input() selection: SelectionModel<T> = null;
+  @Input() showAdd: boolean = false; 
   @Input() actions: string[] = []; 
   @Input() selectionMode: SelectionMode = SelectionMode.NONE;
   @Input() moreActionsLabel: string = 'Show more actions';
@@ -119,7 +121,11 @@ export class HalTreeComponent<T extends Resource<any>> implements OnInit {
     return this.selection.isEmpty();
   }
 
-  get items$() {
+  get showSelection() {
+    return this.selectionMode !== SelectionMode.NONE;
+  }
+
+  get items$(): BehaviorSubject<T[]> {
     return this.dataSource.items$;
   }
 
