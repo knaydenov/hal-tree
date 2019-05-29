@@ -1,135 +1,161 @@
 import { PageableResource, Resource, IResource } from "@knaydenov/hal";
 import { DataSource } from "@angular/cdk/table";
-import { HalTreeItem } from "./hal-tree-item";
 import { CollectionViewer } from "@angular/cdk/collections";
-import { Observable, BehaviorSubject, merge } from "rxjs";
-import { map } from "rxjs/operators";
+import { BehaviorSubject, Subscription } from "rxjs";
 
-export class HalTreeDataSource<T extends Resource<IResource>> extends DataSource<HalTreeItem<T>> {
-    private _items$: BehaviorSubject<HalTreeItem<T>[]> = new BehaviorSubject<HalTreeItem<T>[]>([]);
-    private _autoload: boolean = false;
-
-    private _pageableResource: PageableResource<T> | undefined;
-    private _transformItem: (item: T) => HalTreeItem<T>;
+export class HalTreeDataSource<T extends Resource<IResource>> extends DataSource<T> {
+    _items$: BehaviorSubject<T[]> = new BehaviorSubject<T[]>([]);
+    private _pageableResource: PageableResource<T>;
+    private _currentPageableResource$: BehaviorSubject<PageableResource<T>>;
+    private _currentItem$: BehaviorSubject<T|null> = new BehaviorSubject<T|null>(null);
+    private _itemSubscription: Subscription|null = null;
+    private _reslovePageableResource: (item: T) => PageableResource<T>;
+    private _resloveParentResource: (item: T) => T;
+    private _itemFromData: (data: IResource) => T;
 
     constructor(
-        config: {
-            pageableResource?: PageableResource<T>,
-            transformItem?: (item: T) => HalTreeItem<T>,
-            autoload?: boolean,
-            parent?: HalTreeItem<T>
-        }
+      pageableResource: PageableResource<T>,
+      reslovePageableResource: (item: T) => PageableResource<T>,
+      resloveParentResource?: (item: T) => T,
+      itemFromData?: (data: IResource) => T
     ) {
-        super();
-        this._pageableResource = config.pageableResource || null;
-        this._transformItem = config.transformItem || ((item: T) => new HalTreeItem<T>(item, {}));
-        this._autoload = config.autoload || false;
-
-        if (this.pageableResource) {
-            // Clear list 
-            if (this.pageableResource.page !== 1) {
-                this.pageableResource.items$.next([]);
-                this.pageableResource.navigateFirst();
-            }
-
-            this
-                .pageableResource
-                .items$
-                .subscribe(items => {
-                    if (this.pageIndex === 0) {
-                        this.items$.next(items.map(item => this.transformItem(item)));
-                        if (this.autoload) {
-                            this.more();
-                        }
-                    } else {
-                        this.items$.next([...this.items, ...items.map(item => this.transformItem(item))]);
-                        if (this.autoload) {
-                            this.more();
-                        }
-                    }
-                });
+      super();
+      this._pageableResource = pageableResource;
+      this._currentPageableResource$ = new BehaviorSubject<PageableResource<T>>(this._pageableResource);
+      this._reslovePageableResource = reslovePageableResource;
+      this._resloveParentResource = resloveParentResource ? resloveParentResource : (item: T) => item.hasLink('parent') ? item['parent'] : null;
+      this._itemFromData = itemFromData;
+      
+      this.currentPageableResource$.subscribe(pageableResource => {
+        if (this._itemSubscription) {
+          this._itemSubscription.unsubscribe();
         }
 
-        
+        this._itemSubscription = pageableResource
+          .items$
+          .subscribe(items => {
+            if (pageableResource.page === 1) {
+              this.items$.next(items);
+            } else {
+              this.items$.next([...this.items, ...items]);
+            }
+          });
+
+          if (pageableResource.hasData) {
+            if (!pageableResource.isFirst) {
+              pageableResource.navigateFirst();
+            } else {
+              pageableResource.refresh();
+            }
+          }
+      });
     }
 
-    get items$() {
-        return this._items$;
+    get resolveParentResource() {
+        return this._resloveParentResource;
     }
 
-    get items() {
-        return this.items$.value;
+    get currentPageableResource$() {
+      return this._currentPageableResource$;
+    }
+
+    get currentPageableResource() {
+      return this.currentPageableResource$.value;
+    }
+  
+    get currentItem$() {
+      return this._currentItem$;
+    }
+
+    get currentItem() {
+      return this._currentItem$.value;
+    }
+
+    set currentItem(item: T|null) {
+      this.currentItem$.next(item);
+      if (item) {
+        this.currentPageableResource$.next(this._reslovePageableResource(item));
+      } else {
+        this.currentPageableResource$.next(this._pageableResource);
+      }
     }
 
     get pageableResource() {
-        return this._pageableResource;
+      return this._pageableResource;
+    }
+  
+    get items$() {
+      return this._items$;
+    }
+  
+    get items() {
+      return this._items$.value;
     }
 
-    get isLoading(): boolean {
-        return this.pageableResource ? this.pageableResource.isLoading : undefined;
-    }
+    addItem(data: any, options?: any) {
+      const addItem$ = this
+        .currentPageableResource
+        .addItem(data)
+      ;
 
-    get limit(): number {
-        return this.pageableResource ? this.pageableResource.limit : undefined;
-    }
+      if (this._itemFromData) {
+        addItem$.
+        toPromise()
+        .then(itemData => {
+          this.items$.next([...this.items, this._itemFromData(itemData)])
+        })
+      }
 
-    get total(): number {
-        return this.pageableResource ? this.pageableResource.total : undefined;
-    }
-
-    get pageIndex(): number {
-        return this.pageableResource ? this.pageableResource.page - 1 : undefined;
-    }
-
-    get autoload() {
-        return this._autoload;
-    }
-
-    get hasMore() {
-        return this.pageableResource ? this.pageableResource.hasNext : false;
-    }
-
-    connect(collectionViewer: CollectionViewer): Observable<HalTreeItem<T>[]> {
-        return merge(collectionViewer.viewChange, this._items$).pipe(map(() => this.items));
-    }
-
-    disconnect(collectionViewer: CollectionViewer): void {
-
-    }
-
-    transformItem (item: T) {
-        return this._transformItem(item);
-    }
-
-    appendItem(item: T) {
-        this.items$.next([...this.items, this.transformItem(item)]);
+      return addItem$;
     }
 
     removeItem(item: T) {
-        this.items$.next(this.items.filter(_item => _item.item !== item));
+      return item
+        .delete()
+      ;
     }
 
-    more() {
-        if (!this.pageableResource) {
-            return;
-        }
-
-        if (this.pageableResource.hasNext) {
-            this
-                .pageableResource
-                .navigateNext()
-            ;
-        }
+    get isLoading() {
+      return this.currentPageableResource.isLoading;
     }
 
     refresh() {
-        if (!this.pageableResource) {
-            return;
-        }
-
-        this
-            .pageableResource
-            .navigateFirst()
-        ;
+      this.currentPageableResource.refresh();
     }
+
+    get hasMore() {
+      return this.currentPageableResource.hasNext;
+    }
+
+    more() {
+      this.currentPageableResource.navigateNext();
+    }
+
+    connect(collectionViewer: CollectionViewer) {
+      return this.items$;
+    }
+
+    disconnect() {
+
+    }
+  
+    // connect(collectionViewer: CollectionViewer) {
+    //   return this.items$;
+    // }
+  
+    // disconnect() {
+  
+    // }
+
+    // add(bookmark: Bookmark) {
+    //   this.items$.next([...this.items, bookmark]);
+    // }
+
+    // remove(bookmark: Bookmark) {
+    //   this.items$.next(this.items.filter(item => item !== bookmark));
+    // }
+
+    // get currentPageableResource() {
+    //   return this._currentPageableResource$.value;
+    // }
 }

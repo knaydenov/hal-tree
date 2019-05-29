@@ -1,38 +1,58 @@
-<mat-tree *ngIf="dataSource" [dataSource]="dataSource" [treeControl]="treeControl" class="tree">
-    <mat-nested-tree-node *matTreeNodeDef="let node">
-      <li>
-        <div class="mat-tree-node">
-          <ng-container [ngSwitch]="node.hasChildren">
-              <button mat-icon-button disabled *ngSwitchCase="false"></button>
-              <button mat-icon-button matTreeNodeToggle *ngSwitchCase="true" [disabled]="isLoading(node)">
-                <mat-icon>
-                  {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-                </mat-icon>
-              </button>
+<div class="tree">
+  <div class="tree__filter">
+    <mat-form-field>
+      <input cdkFocusInitial #query matInput [placeholder]="searchLabel | translate" [formControl]="queryControl">
+      <button mat-button *ngIf="showClear" matSuffix mat-icon-button (click)="clearQuery()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+  <mat-list #shoes> 
+    <mat-list-item *ngIf="currentItem">
+        <mat-icon matListIcon>arrow_back</mat-icon>
+        <span class="tree__item-text" (dblclick)="openPrevious()">{{ currentItem.title }}</span>
+    </mat-list-item>
+    <mat-list-item *ngIf="showNoItems">
+        <span class="tree__item-text">{{ noItemsLabel | trans }}</span>
+    </mat-list-item>
+    <mat-list-item *ngFor="let item of items">
+      <ng-container [ngSwitch]="selectionMode">
+        <ng-container *ngSwitchCase="0"></ng-container>
+        <mat-radio-button *ngSwitchCase="1" class="tree__radio-button" (click)="toggleSelection(item)" [checked]="isItemSelected(item)"></mat-radio-button>
+        <mat-checkbox *ngSwitchCase="2" class="tree__checkbox" (change)="toggleSelection(item)" [checked]="isItemSelected(item)"></mat-checkbox>
+      </ng-container>
+      <ng-container [ngSwitch]="item.hasChildren">
+          <mat-icon matListIcon *ngSwitchCase="true">folder</mat-icon>
+          <mat-icon matListIcon *ngSwitchCase="false">note</mat-icon>
+      </ng-container>
+      <span class="tree__item-text" (dblclick)="openItem(item)">{{ item.title }}</span>
+
+      <ng-container *ngIf="itemActions.length">
+        <button mat-icon-button [matMenuTriggerFor]="itemActionsMenu" [matTooltip]="moreActionsLabel | translate">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #itemActionsMenu="matMenu">
+          <ng-container *ngFor="let action of itemActions">
+            <button mat-menu-item (click)="action.handle(dataSource.selection)" [matTooltip]="action.label | translate">
+              <mat-icon>{{ action.icon }}</mat-icon>
+              <span>{{ action.label | translate }}</span>
+            </button>
           </ng-container>
-          <ng-container [ngSwitch]="showSelection">
-              <ng-container *ngSwitchCase="true">
-                  <mat-checkbox
-                  [disabled]="isLoading(node)"
-                  *ngSwitchCase="true"
-                  [checked]="isSelected(node)"
-                  (change)="toggleSelection(node)"
-                >{{ node.title }}</mat-checkbox>
-              </ng-container>
-              <ng-container *ngSwitchCase="false">{{node.title}}</ng-container>
-          </ng-container>
-          <ng-container *ngFor="let action of _actionDefs">
-              <button *ngIf="action.shouldShow(node)" mat-icon-button (click)="action.handle(node)" [disabled]="!action.shouldEnable(node)">
-                  <mat-icon>{{ action.icon }}</mat-icon>
-                </button>
-          </ng-container>
-          <mat-progress-spinner diameter="20" mode="indeterminate" *ngIf="isLoading(node)"></mat-progress-spinner>
-        </div>
-        <ul [class.tree-invisible]="!treeControl.isExpanded(node)">
-          <ng-container matTreeNodeOutlet></ng-container>
-        </ul>
-        <button *ngIf="showLoadMore(node.childrenDataSource)" class="load-more" mat-button (click)="loadMore(node.childrenDataSource)">{{ 'hal-tree.loadMore' | translate }}</button>
-      </li>
-    </mat-nested-tree-node>
-  </mat-tree>
-  <button *ngIf="showLoadMore(dataSource)" class="load-more" mat-button (click)="loadMore(dataSource)">{{ 'hal-tree.loadMore' | translate }}</button>
+        </mat-menu>
+      </ng-container>
+    </mat-list-item>
+    <mat-list-item *ngIf="showLoadMore || showSpinner">
+      <button *ngIf="showLoadMore" mat-button (click)="loadMore()"><mat-icon>more_horiz</mat-icon>  {{ loadMoreLabel | translate }}</button>
+      <mat-spinner *ngIf="showSpinner" [diameter]="14"></mat-spinner>
+    </mat-list-item>
+    <mat-list-item  *ngIf="showAdd">
+      <button (click)="addItem()" mat-button><mat-icon>add</mat-icon> {{ addLabel | translate }}</button>
+    </mat-list-item>
+  </mat-list>
+  <div class="tree__selection" *ngIf="showSelection && !isSelectionEmpty">
+    <mat-divider></mat-divider>
+    <mat-chip-list>
+      <mat-chip *ngFor="let item of selectedItems">{{ item.title }} <mat-icon (click)="deselectItem(item)" matChipRemove>cancel</mat-icon></mat-chip>
+    </mat-chip-list>
+  </div>
+</div>
