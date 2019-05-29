@@ -1,5 +1,5 @@
 import { Directive } from '@angular/core';
-import { HalTreeItem } from './hal-tree-item';
+import { Resource } from '@knaydenov/hal';
 
 @Directive({
   selector: '[halTreeActionDef]',
@@ -14,24 +14,25 @@ import { HalTreeItem } from './hal-tree-item';
 export class HalTreeActionDefDirective {
 
   constructor() { }
-
+  
   this: any;
+  name: string;
   icon: string = '';
-  handler: (node: HalTreeItem<any>) => void;
-  show: (node: HalTreeItem<any>) => boolean = (node: HalTreeItem<any>) => true;
-  enable: (node: HalTreeItem<any>) => boolean = (node: HalTreeItem<any>) => true;
+  handler: (node: Resource<any>) => void;
+  show: (node: Resource<any>) => boolean = (node: Resource<any>) => true;
+  enable: (node: Resource<any>) => boolean = (node: Resource<any>) => true;
 
-  handle(node: HalTreeItem<any>) {
+  handle(node: Resource<any>) {
     const handler = this.handler.bind(this.this);
     handler(node);
   }
 
-  shouldShow(node: HalTreeItem<any>): boolean {
+  shouldShow(node: Resource<any>): boolean {
     const show = this.show.bind(this.this);
     return show(node);
   }
 
-  shouldEnable(node: HalTreeItem<any>): boolean {
+  shouldEnable(node: Resource<any>): boolean {
     const enable = this.enable.bind(this.this);
     return !node.isLoading && enable(node);
   }
