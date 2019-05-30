@@ -53,7 +53,7 @@
     <mat-divider></mat-divider>
     <div class="hal-tree__selection" >
       <mat-chip-list>
-        <mat-chip *ngFor="let item of selectedItems">{{ dataSource.resolveTItle(item) }} <mat-icon (click)="deselectItem(item)" matChipRemove>cancel</mat-icon></mat-chip>
+        <mat-chip *ngFor="let item of selectedItems">{{ dataSource.resolveTitle(item) }} <mat-icon (click)="deselectItem(item)" matChipRemove>cancel</mat-icon></mat-chip>
       </mat-chip-list>
     </div>
   </ng-container>
