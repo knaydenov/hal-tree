@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HalTreeComponent } from './hal-tree/hal-tree.component';
-import { MatTreeModule, MatIconModule, MatButtonModule, MatCheckboxModule, MatProgressSpinnerModule, MatListModule, MatChipsModule, MatMenuModule, MatRadioModule, MatTooltipModule, MatFormFieldModule } from '@angular/material';
+import { MatTreeModule, MatIconModule, MatButtonModule, MatCheckboxModule, MatProgressSpinnerModule, MatListModule, MatChipsModule, MatMenuModule, MatRadioModule, MatTooltipModule, MatFormFieldModule, MatInputModule } from '@angular/material';
 import { HalTreeActionDirective } from './hal-tree-action.directive';
 import { HalTreeActionDefDirective } from './hal-tree-action-def.directive';
 import { TranslateModule } from '@ngx-translate/core';
@@ -26,6 +26,7 @@ const EXPORTED_DECLARATIONS = [
     MatMenuModule,
     MatRadioModule,
     MatTooltipModule,
+    MatInputModule,
     TranslateModule,
     MatFormFieldModule,
     FormsModule,

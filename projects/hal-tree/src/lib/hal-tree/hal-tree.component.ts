@@ -63,6 +63,9 @@ export class HalTreeComponent<T extends Resource<any>> implements OnInit {
   }
 
   get query() {
+    if (!this.dataSource) {
+      return null;
+    }
     const q = this.dataSource.pageableResource.filters.find(f => f.field === 'q');
     return q ? q.value : null;
   }
