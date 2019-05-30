@@ -4,7 +4,9 @@ import { Resource } from '@knaydenov/hal';
 @Directive({
   selector: '[halTreeActionDef]',
   inputs: [
+    'name: halTreeActionDefName',
     'icon: halTreeActionDefIcon',
+    'label: halTreeActionDefLabel',
     'handler: halTreeActionDefHandler',
     'show: halTreeActionDefShow',
     'enable: halTreeActionDefEnable',
@@ -17,23 +19,24 @@ export class HalTreeActionDefDirective {
   
   this: any;
   name: string;
+  label: string;
   icon: string = '';
-  handler: (node: Resource<any>) => void;
-  show: (node: Resource<any>) => boolean = (node: Resource<any>) => true;
-  enable: (node: Resource<any>) => boolean = (node: Resource<any>) => true;
+  handler: (item: Resource<any>) => void;
+  show: (item: Resource<any>) => boolean = (item: Resource<any>) => true;
+  enable: (item: Resource<any>) => boolean = (item: Resource<any>) => true;
 
-  handle(node: Resource<any>) {
+  handle(item: Resource<any>) {
     const handler = this.handler.bind(this.this);
-    handler(node);
+    handler(item);
   }
 
-  shouldShow(node: Resource<any>): boolean {
+  shouldShow(item: Resource<any>): boolean {
     const show = this.show.bind(this.this);
-    return show(node);
+    return show(item);
   }
 
-  shouldEnable(node: Resource<any>): boolean {
+  shouldEnable(item: Resource<any>): boolean {
     const enable = this.enable.bind(this.this);
-    return !node.isLoading && enable(node);
+    return !item.isLoading && enable(item);
   }
 }

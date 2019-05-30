@@ -110,9 +110,24 @@ export class HalTreeDataSource<T extends Resource<IResource>> extends DataSource
     }
 
     removeItem(item: T) {
-      return item
+      const indexOfItem = this.items.indexOf(item);
+      const remainingItems = this.items.slice(0);
+      
+      if (indexOfItem !== -1) {
+        remainingItems.splice(indexOfItem, 1);
+      }
+
+      const delete$ = item
         .delete()
       ;
+
+      delete$
+        .toPromise()
+        .then(() => {
+          this.items$.next(remainingItems);
+        })
+
+      return delete$;
     }
 
     get isLoading() {

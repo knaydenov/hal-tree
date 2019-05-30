@@ -1,9 +1,9 @@
-import { Component, OnInit, Input, ContentChildren, QueryList, ContentChild, ViewChild, AfterViewChecked, ChangeDetectorRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, ContentChildren, QueryList, ContentChild, ViewChild, AfterViewChecked, ChangeDetectorRef, AfterViewInit, Output, EventEmitter } from '@angular/core';
 import { HalTreeDataSource } from '../hal-tree-data-source';
 import { SelectionModel } from '@angular/cdk/collections';
 import { HalTreeActionDefDirective } from '../hal-tree-action-def.directive';
 import { FormControl } from '@angular/forms';
-import { Resource } from '@knaydenov/hal';
+import { Resource, PageableResource } from '@knaydenov/hal';
 import { debounceTime } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
 
@@ -31,19 +31,56 @@ export class HalTreeComponent<T extends Resource<any>> implements OnInit {
   @Input() loadMoreLabel: string = 'Load more';
   @Input() addLabel: string = 'Add';
   @Input() noItemsLabel: string = 'No items';
+  @Input() queryField: string = 'q';
+
+  @Output() add: EventEmitter<PageableResource<T>> = new EventEmitter<PageableResource<T>>();
 
   @ContentChildren(HalTreeActionDefDirective) _actionDefs: QueryList<HalTreeActionDefDirective>;
 
   constructor() {
-    this.queryControl =  new FormControl(this.query);
-  }
+    this.queryControl =  new FormControl();
 
-  ngOnInit() {
-        this
+    this
       .queryControl
       .valueChanges
       .pipe(debounceTime(1000))
-      .subscribe(query => this.query = query);
+      .subscribe(value => {
+        if (value) {
+          this.dataSource.pageableResource.filters = [
+            {
+              field: 'q', 
+              value: value, 
+              multiple: false
+            }, 
+            {
+              field: 'root',
+              value: 'n',
+              multiple: false
+            }, 
+            {
+              field: 'page',
+              value: '1',
+              multiple: false
+            }
+          ]
+        } else {
+          this.dataSource.pageableResource.filters = []
+        }
+
+        this
+          .dataSource
+          .pageableResource
+          .commit()
+          .subscribe(() => this.dataSource.currentItem = null)
+        ;
+
+      })
+    ;
+  }
+
+  ngOnInit() {
+    const q = this.dataSource.pageableResource.filters.find(f => f.field === this.queryField);
+    this.queryControl.setValue(q ? q.value : null, { emitEvent: false });
   }
 
   get showSpinner() {
@@ -55,49 +92,11 @@ export class HalTreeComponent<T extends Resource<any>> implements OnInit {
   }
 
   get showClear() {
-    return !!this.query;
+    return !!this.queryControl.value;
   }
 
   clearQuery() {
     this.queryControl.setValue('');
-  }
-
-  get query() {
-    if (!this.dataSource) {
-      return null;
-    }
-    const q = this.dataSource.pageableResource.filters.find(f => f.field === 'q');
-    return q ? q.value : null;
-  }
-
-  set query(query: string) {
-    if (query) {
-      this.dataSource.pageableResource.filters = [
-        {
-          field: 'q', 
-          value: query, 
-          multiple: false
-        }, 
-        {
-          field: 'root',
-          value: 'n',
-          multiple: false
-        }, 
-        {
-          field: 'page',
-          value: '1',
-          multiple: false
-        }
-      ]
-    } else {
-      this.dataSource.pageableResource.filters = []
-    }
-    this
-      .dataSource
-      .pageableResource
-      .commit()
-      .subscribe(() => this.dataSource.currentItem = null)
-    ;
   }
 
   get showLoadMore() {
@@ -136,10 +135,6 @@ export class HalTreeComponent<T extends Resource<any>> implements OnInit {
     return this.items$.value;
   }
 
-  // get currentItem$() {
-  //   return this._currentItem$;
-  // }
-
   get currentItem() {
     return this.dataSource.currentItem;
   }
@@ -149,17 +144,7 @@ export class HalTreeComponent<T extends Resource<any>> implements OnInit {
   }
 
   addItem() {
-    // const dialogRef: MatDialogRef<BookmarkDialogComponent, IBookmarkDialogData> = this.dialog.open<BookmarkDialogComponent, IBookmarkDialogData>(BookmarkDialogComponent, {
-    //   data: {}
-    // });
-    // dialogRef.afterClosed().subscribe(data => {
-    //   if (data) {
-    //     this
-    //       .dataSource
-    //       .addItem({title: data.title})
-    //     ;
-    //   }
-    // });
+    this.add.emit(this.dataSource.currentPageableResource);
   }
 
   openPrevious() {
