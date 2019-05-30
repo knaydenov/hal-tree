@@ -1,6 +1,6 @@
 {
   "name": "@knaydenov/hal-tree",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "peerDependencies": {
     "@angular/cdk": "^6.4.0",
     "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
