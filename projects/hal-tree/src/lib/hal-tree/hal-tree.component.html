@@ -10,7 +10,7 @@
   <mat-list class="hal-tree__list"> 
     <mat-list-item *ngIf="currentItem" class="hal-tree__item hal-tree__item--current" (dblclick)="openPrevious()">
         <mat-icon matListIcon>arrow_back</mat-icon>
-        <span class="hal-tree__item-text">{{ currentItem.title }}</span>
+        <span class="hal-tree__item-text">{{ dataSource.resolveTitle(currentItem) }}</span>
     </mat-list-item>
     <mat-list-item *ngIf="showNoItems" class="hal-tree__no-items">
         <span class="hal-tree__item-text">{{ noItemsLabel | translate }}</span>
@@ -25,7 +25,7 @@
           <mat-icon matListIcon *ngSwitchCase="true">folder</mat-icon>
           <mat-icon matListIcon *ngSwitchCase="false">note</mat-icon>
       </ng-container>
-      <span class="hal-tree__item-text">{{ item.title }}</span>
+      <span class="hal-tree__item-text">{{ dataSource.resolveTitle(item) }}</span>
 
       <ng-container *ngIf="itemActions.length > 0">
         <button mat-icon-button [matMenuTriggerFor]="itemActionsMenu" [matTooltip]="moreActionsLabel | translate">

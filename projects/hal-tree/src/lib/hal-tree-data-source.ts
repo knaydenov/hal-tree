@@ -3,6 +3,13 @@ import { DataSource } from "@angular/cdk/table";
 import { CollectionViewer } from "@angular/cdk/collections";
 import { BehaviorSubject, Subscription, Subject } from "rxjs";
 
+export interface IHalTreeDataSourceConfig<T extends Resource<any>> {
+  reslovePageableResource: (item: T) => PageableResource<T>;
+  resloveParentResource?: (item: T) => T;
+  resolveTitle?: (item: T) => string;
+  itemFromData?: (data: IResource) => T;
+}
+
 export class HalTreeDataSource<T extends Resource<IResource>> extends DataSource<T> {
     _items$: BehaviorSubject<T[]> = new BehaviorSubject<T[]>([]);
     private _pageableResource: PageableResource<T>;
@@ -12,20 +19,21 @@ export class HalTreeDataSource<T extends Resource<IResource>> extends DataSource
     private _reslovePageableResource: (item: T) => PageableResource<T>;
     private _resloveParentResource: (item: T) => T;
     private _itemFromData: (data: IResource) => T;
+    private _resolveTitle?: (item: T) => string;
 
     constructor(
       pageableResource: PageableResource<T>,
-      reslovePageableResource: (item: T) => PageableResource<T>,
-      resloveParentResource?: (item: T) => T,
-      itemFromData?: (data: IResource) => T
+      config: IHalTreeDataSourceConfig<T>
     ) {
       super();
       this._pageableResource = pageableResource;
       this._currentPageableResource$ = new BehaviorSubject<PageableResource<T>>(this._pageableResource);
-      this._reslovePageableResource = reslovePageableResource;
-      this._resloveParentResource = resloveParentResource ? resloveParentResource : (item: T) => item.hasLink('parent') ? item['parent'] : null;
-      this._itemFromData = itemFromData;
       
+      this._reslovePageableResource = config.reslovePageableResource ?  config.reslovePageableResource : (item) => item['childern'];
+      this._resloveParentResource = config.resloveParentResource ? config.resloveParentResource : (item: T) => item.hasLink('parent') ? item['parent'] : null;
+      this._resolveTitle = config.resolveTitle ? config.resolveTitle : (item: T) => item['title'];
+      this._itemFromData = config.itemFromData ? config.itemFromData : null;
+
       this.currentPageableResource$.subscribe(pageableResource => {
         if (this._itemSubscription) {
           this._itemSubscription.unsubscribe();
@@ -53,6 +61,10 @@ export class HalTreeDataSource<T extends Resource<IResource>> extends DataSource
 
     get resolveParentResource() {
         return this._resloveParentResource;
+    }
+
+    get resolveTitle() {
+      return this._resolveTitle;
     }
 
     get currentPageableResource$() {
@@ -112,7 +124,7 @@ export class HalTreeDataSource<T extends Resource<IResource>> extends DataSource
     removeItem(item: T) {
       const indexOfItem = this.items.indexOf(item);
       const remainingItems = this.items.slice(0);
-      
+
       if (indexOfItem !== -1) {
         remainingItems.splice(indexOfItem, 1);
       }
