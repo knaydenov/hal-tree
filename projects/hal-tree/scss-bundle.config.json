@@ -1,0 +1,4 @@
+{
+    "entry": "./src/lib/hal-tree/_hal-tree-theme.scss",
+    "dest": "../../dist/hal-tree/_hal-tree-theme.scss"
+  }

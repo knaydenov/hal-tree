@@ -1,0 +1,36 @@
+@mixin hal-tree-theme($theme) {
+
+    $primary: map-get($theme, primary);
+    $accent: map-get($theme, accent);
+    $warn: map-get($theme, warn);
+    $background: map-get($theme, background);
+    $foreground: map-get($theme, foreground);
+
+    $item-hover-color: lighten(mat-color($foreground, 'base'), 97%);
+    $current-item-color: lighten(mat-color($foreground, 'base'), 90%);
+    $current-item-hover-color: lighten(mat-color($foreground, 'base'), 94%);
+
+    .hal-tree {
+      &__item {
+          &:hover {
+              background-color: $item-hover-color;
+          }
+          &--current {
+            background-color: $current-item-color;
+            &:hover {
+                background-color: $current-item-hover-color;
+            }
+          }
+      }
+
+      &__no-items {
+        color: mat-color($foreground, divider) !important;
+      }
+    }
+}
+
+@mixin hal-tree-typography($config) {
+    .hal-tree {
+      
+    }
+}

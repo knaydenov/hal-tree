@@ -1,31 +1,31 @@
-<div class="tree">
-  <div class="tree__filter">
-    <mat-form-field>
+<div class="hal-tree">
+  <div class="hal-tree__filter">
+    <mat-form-field class="hal-tree__query">
       <input cdkFocusInitial #query matInput [placeholder]="searchLabel | translate" [formControl]="queryControl">
       <button mat-button *ngIf="showClear" matSuffix mat-icon-button (click)="clearQuery()">
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
   </div>
-  <mat-list #shoes> 
-    <mat-list-item *ngIf="currentItem">
+  <mat-list class="hal-tree__list"> 
+    <mat-list-item *ngIf="currentItem" class="hal-tree__item hal-tree__item--current" (dblclick)="openPrevious()">
         <mat-icon matListIcon>arrow_back</mat-icon>
-        <span class="tree__item-text" (dblclick)="openPrevious()">{{ currentItem.title }}</span>
+        <span class="hal-tree__item-text">{{ currentItem.title }}</span>
     </mat-list-item>
-    <mat-list-item *ngIf="showNoItems">
-        <span class="tree__item-text">{{ noItemsLabel | translate }}</span>
+    <mat-list-item *ngIf="showNoItems" class="hal-tree__no-items">
+        <span class="hal-tree__item-text">{{ noItemsLabel | translate }}</span>
     </mat-list-item>
-    <mat-list-item *ngFor="let item of items">
+    <mat-list-item *ngFor="let item of items" class="hal-tree__item" (dblclick)="openItem(item)">
       <ng-container [ngSwitch]="selectionMode">
         <ng-container *ngSwitchCase="0"></ng-container>
-        <mat-radio-button *ngSwitchCase="1" class="tree__radio-button" (click)="toggleSelection(item)" [checked]="isItemSelected(item)"></mat-radio-button>
-        <mat-checkbox *ngSwitchCase="2" class="tree__checkbox" (change)="toggleSelection(item)" [checked]="isItemSelected(item)"></mat-checkbox>
+        <mat-radio-button *ngSwitchCase="1" class="hal-tree__radio-button" (click)="toggleSelection(item)" [checked]="isItemSelected(item)"></mat-radio-button>
+        <mat-checkbox *ngSwitchCase="2" class="hal-tree__checkbox" (change)="toggleSelection(item)" [checked]="isItemSelected(item)"></mat-checkbox>
       </ng-container>
       <ng-container [ngSwitch]="item.hasChildren">
           <mat-icon matListIcon *ngSwitchCase="true">folder</mat-icon>
           <mat-icon matListIcon *ngSwitchCase="false">note</mat-icon>
       </ng-container>
-      <span class="tree__item-text" (dblclick)="openItem(item)">{{ item.title }}</span>
+      <span class="hal-tree__item-text">{{ item.title }}</span>
 
       <ng-container *ngIf="itemActions.length">
         <button mat-icon-button [matMenuTriggerFor]="itemActionsMenu" [matTooltip]="moreActionsLabel | translate">
@@ -41,18 +41,20 @@
         </mat-menu>
       </ng-container>
     </mat-list-item>
-    <mat-list-item *ngIf="showLoadMore || showSpinner">
+    <mat-list-item *ngIf="showLoadMore || showSpinner"  class="hal-tree__load-more-container">
       <button *ngIf="showLoadMore" mat-button (click)="loadMore()"><mat-icon>more_horiz</mat-icon>  {{ loadMoreLabel | translate }}</button>
       <mat-spinner *ngIf="showSpinner" [diameter]="14"></mat-spinner>
     </mat-list-item>
-    <mat-list-item  *ngIf="showAdd">
+    <mat-list-item  *ngIf="showAdd"  class="hal-tree__add-container">
       <button (click)="addItem()" mat-button><mat-icon>add</mat-icon> {{ addLabel | translate }}</button>
     </mat-list-item>
   </mat-list>
-  <div class="tree__selection" *ngIf="showSelection && !isSelectionEmpty">
+  <ng-container *ngIf="showSelection && !isSelectionEmpty">
     <mat-divider></mat-divider>
-    <mat-chip-list>
-      <mat-chip *ngFor="let item of selectedItems">{{ item.title }} <mat-icon (click)="deselectItem(item)" matChipRemove>cancel</mat-icon></mat-chip>
-    </mat-chip-list>
-  </div>
+    <div class="hal-tree__selection" >
+      <mat-chip-list>
+        <mat-chip *ngFor="let item of selectedItems">{{ item.title }} <mat-icon (click)="deselectItem(item)" matChipRemove>cancel</mat-icon></mat-chip>
+      </mat-chip-list>
+    </div>
+  </ng-container>
 </div>
