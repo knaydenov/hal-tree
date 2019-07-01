@@ -7,16 +7,15 @@
     "@angular/core": "^8.0.0",
     "@angular/material": "^8.0.0",
     "@ngx-translate/core": "^10.0.0",
+    "@knaydenov/hal": "^2.2.5",
     "rxjs": "^6.4.0"
   },
   "devDependencies": {
     "@angular/cdk": "^6.4.0",
     "@angular/common": "^6.1.10",
     "@angular/material": "^6.4.0",
+    "@knaydenov/hal": "^2.2.5",
     "zone.js": "^0.9.1"
-  },
-  "dependencies": {
-    "@knaydenov/hal": "^2.2.1"
   },
   "publishConfig": {
     "access": "public"
